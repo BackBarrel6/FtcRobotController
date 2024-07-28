@@ -1,16 +1,19 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-public class OutTake {
+import org.firstinspires.ftc.teamcode.utils.HardwareMapping;
+import org.firstinspires.ftc.teamcode.utils.PIDController;
+
+public class Lift {
 
     // Hardware mapping to control the motor
     public HardwareMapping mapping;
     private PIDController pidController;
 
     // Constructor to initialize the hardware mapping
-    public OutTake(HardwareMapping mapping) {
+    public Lift(HardwareMapping mapping) {
         this.mapping = mapping;
         this.pidController = new PIDController(0.1, 0.01, 0.05, -1.0, 1.0);  // Example PID values
     }
