@@ -7,10 +7,12 @@ public class OutTake {
 
     // Hardware mapping to control the motor
     public HardwareMapping mapping;
+    private PIDController pidController;
 
     // Constructor to initialize the hardware mapping
     public OutTake(HardwareMapping mapping) {
         this.mapping = mapping;
+        this.pidController = new PIDController(0.1, 0.01, 0.05, -1.0, 1.0);  // Example PID values
     }
 
     // Enumeration to represent the different lift positions
@@ -28,6 +30,7 @@ public class OutTake {
         // Set the initial position of the lift to 'DOWN'
         mapping.motorLift.setTargetPosition(LiftPositions[position.ordinal()]);
         mapping.motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        pidController.setSetpoint(LiftPositions[position.ordinal()]);
     }
 
     // Method to update the lift position based on gamepad input
@@ -40,6 +43,11 @@ public class OutTake {
         else if (gamepad.dpad_down) {
             moveDown();
         }
+
+        // Update motor power based on PID calculation
+        double currentPosition = mapping.motorLift.getCurrentPosition();
+        double power = pidController.calculate(currentPosition);
+        mapping.motorLift.setPower(power);
     }
 
     // Method to move the lift up
@@ -53,7 +61,7 @@ public class OutTake {
             position = Pos.values()[position.ordinal() + 1];
         }
         // Set the target position for the lift motor
-        mapping.motorLift.setTargetPosition(LiftPositions[position.ordinal()]);
+        pidController.setSetpoint(LiftPositions[position.ordinal()]);
     }
 
     // Method to move the lift down
@@ -62,7 +70,7 @@ public class OutTake {
         if (position.ordinal() > Pos.DOWN.ordinal()) {
             position = Pos.values()[position.ordinal() - 1];
             // Set the target position for the lift motor
-            mapping.motorLift.setTargetPosition(LiftPositions[position.ordinal()]);
+            pidController.setSetpoint(LiftPositions[position.ordinal()]);
         }
     }
 }

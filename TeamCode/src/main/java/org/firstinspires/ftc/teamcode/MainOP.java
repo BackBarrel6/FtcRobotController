@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class MainOP extends LinearOpMode {
 
     @Override
-    public void runOpMode()
+    public void runOpMode() throws InterruptedException
     {
         final HardwareMapping mapping= HardwareMapping.from(hardwareMap);
         Drive dt=new Drive (mapping);

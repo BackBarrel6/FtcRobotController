@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -17,11 +18,12 @@ public class HardwareMapping {
     public static final String LServo = "servoL";
     public static final String RServo = "servoR";
 
-    public final DcMotor motorLift, frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, intakeMotor;
+    public final DcMotor frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, intakeMotor;
+    public final DcMotorEx motorLift;
     public final IMU imu;
     public final Servo ServoL, ServoR;
 
-    public HardwareMapping(DcMotor motorLift, DcMotor frontLeftMotor, DcMotor backLeftMotor, DcMotor frontRightMotor, DcMotor backRightMotor, DcMotor intakeMotor, IMU imu, Servo servoL, Servo servoR) {
+    public HardwareMapping(DcMotorEx motorLift, DcMotor frontLeftMotor, DcMotor backLeftMotor, DcMotor frontRightMotor, DcMotor backRightMotor, DcMotor intakeMotor, IMU imu, Servo servoL, Servo servoR) {
         this.frontLeftMotor = frontLeftMotor;
         this.backLeftMotor = backLeftMotor;
         this.frontRightMotor = frontRightMotor;
@@ -48,12 +50,12 @@ public class HardwareMapping {
         backRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //motorLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public static HardwareMapping from(HardwareMap map) {
         return new HardwareMapping(
-                map.dcMotor.get(LIFT_MOTOR),
+                map.get(DcMotorEx.class, LIFT_MOTOR),
                 map.dcMotor.get(FRONT_LEFT_MOTOR),
                 map.dcMotor.get(BACK_LEFT_MOTOR),
                 map.dcMotor.get(FRONT_RIGHT_MOTOR),
