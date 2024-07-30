@@ -7,23 +7,23 @@ public class PIDController {
     private double setpoint;  // Desired target value
     private double previousError = 0;  // Error from the previous calculation
     private double integral = 0;  // Integral of the error
-    private double integralLimit;  // Limit for the integral term
     private double maxOutput;  // Maximum output value
     private double minOutput;  // Minimum output value
+    private boolean outputClampingEnabled;  // Flag to enable/disable output clamping
     private ElapsedTime timer;  // Timer for calculating elapsed time
     private double previousDerivative = 0;  // Previous derivative value
     private double derivativeFilterCoefficient;  // Derivative filter coefficient
 
-    // Constructor to initialize the PID controller with coefficients and output limits
-    public PIDController(double kP, double kI, double kD, double kF, double minOutput, double maxOutput, double integralLimit, double derivativeFilterCoefficient) {
+    // Constructor to initialize the PID controller with coefficients, output limits, and clamping flag
+    public PIDController(double kP, double kI, double kD, double kF, double minOutput, double maxOutput, double derivativeFilterCoefficient, boolean outputClampingEnabled) {
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
         this.kF = kF;
         this.minOutput = minOutput;
         this.maxOutput = maxOutput;
-        this.integralLimit = integralLimit;
         this.derivativeFilterCoefficient = derivativeFilterCoefficient;
+        this.outputClampingEnabled = outputClampingEnabled;
         this.timer = new ElapsedTime();
     }
 
@@ -35,6 +35,11 @@ public class PIDController {
         this.timer.reset();  // Reset the timer when setting a new setpoint
     }
 
+    // Method to enable or disable output clamping
+    public void setOutputClampingEnabled(boolean enabled) {
+        this.outputClampingEnabled = enabled;
+    }
+
     // Method to calculate the output value based on the current position
     public double calculate(double currentPosition) {
         double deltaTime = timer.seconds();  // Get the elapsed time in seconds
@@ -42,11 +47,6 @@ public class PIDController {
 
         double error = setpoint - currentPosition;  // Calculate the error
         integral += error * deltaTime;  // Accumulate the integral of the error
-
-        // Apply anti-windup to the integral term
-        if (Math.abs(integral) > integralLimit) {
-            integral = Math.signum(integral) * integralLimit;
-        }
 
         // Calculate the derivative of the error with filtering
         double rawDerivative = (error - previousError) / deltaTime;
@@ -58,7 +58,11 @@ public class PIDController {
         // Calculate the PID output with feedforward term
         double output = kP * error + kI * integral + kD * derivative + kF * setpoint;
 
-        // Clamp the output to the specified limits
-        return Math.max(minOutput, Math.min(maxOutput, output));
+        // Clamp the output to the specified limits if clamping is enabled
+        if (outputClampingEnabled) {
+             return Math.max(minOutput, Math.min(maxOutput, output));
+        }
+
+        return output;
     }
 }
