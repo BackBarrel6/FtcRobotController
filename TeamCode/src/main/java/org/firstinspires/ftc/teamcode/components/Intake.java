@@ -14,6 +14,7 @@ public class Intake {
 
     public void update(Gamepad gamepad) {
         if(gamepad.a)mapping.intakeMotor.setPower(1);
-        if(gamepad.x)mapping.intakeMotor.setPower(-1);
+        else if(gamepad.x)mapping.intakeMotor.setPower(-1);
+        else mapping.intakeMotor.setPower(0);
     }
 }
