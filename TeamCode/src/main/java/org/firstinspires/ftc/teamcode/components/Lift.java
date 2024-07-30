@@ -15,7 +15,7 @@ public class Lift {
     // Constructor to initialize the hardware mapping
     public Lift(HardwareMapping mapping) {
         this.mapping = mapping;
-        this.pidController = new PIDController(0.1, 0.01, 0.05, -1.0, 1.0);  // Example PID values
+        this.pidController = new PIDController(0.1, 0.01, 0.05, -1.0, 1.0, 0.0, 0.0, 0.0);  // Example PID values
     }
 
     // Enumeration to represent the different lift positions

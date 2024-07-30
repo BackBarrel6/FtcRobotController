@@ -3,21 +3,27 @@ package org.firstinspires.ftc.teamcode.utils;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class PIDController {
-    private double kP, kI, kD;  // PID coefficients
+    private double kP, kI, kD, kF;  // PID and feedforward coefficients
     private double setpoint;  // Desired target value
     private double previousError = 0;  // Error from the previous calculation
     private double integral = 0;  // Integral of the error
+    private double integralLimit;  // Limit for the integral term
     private double maxOutput;  // Maximum output value
     private double minOutput;  // Minimum output value
     private ElapsedTime timer;  // Timer for calculating elapsed time
+    private double previousDerivative = 0;  // Previous derivative value
+    private double derivativeFilterCoefficient;  // Derivative filter coefficient
 
     // Constructor to initialize the PID controller with coefficients and output limits
-    public PIDController(double kP, double kI, double kD, double minOutput, double maxOutput) {
+    public PIDController(double kP, double kI, double kD, double kF, double minOutput, double maxOutput, double integralLimit, double derivativeFilterCoefficient) {
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
+        this.kF = kF;
         this.minOutput = minOutput;
         this.maxOutput = maxOutput;
+        this.integralLimit = integralLimit;
+        this.derivativeFilterCoefficient = derivativeFilterCoefficient;
         this.timer = new ElapsedTime();
     }
 
@@ -36,11 +42,21 @@ public class PIDController {
 
         double error = setpoint - currentPosition;  // Calculate the error
         integral += error * deltaTime;  // Accumulate the integral of the error
-        double derivative = (error - previousError) / deltaTime;  // Calculate the derivative of the error
+
+        // Apply anti-windup to the integral term
+        if (Math.abs(integral) > integralLimit) {
+            integral = Math.signum(integral) * integralLimit;
+        }
+
+        // Calculate the derivative of the error with filtering
+        double rawDerivative = (error - previousError) / deltaTime;
+        double derivative = previousDerivative + (derivativeFilterCoefficient * (rawDerivative - previousDerivative));
+        previousDerivative = derivative;
+
         previousError = error;  // Update the previous error
 
-        // Calculate the PID output
-        double output = kP * error + kI * integral + kD * derivative;
+        // Calculate the PID output with feedforward term
+        double output = kP * error + kI * integral + kD * derivative + kF * setpoint;
 
         // Clamp the output to the specified limits
         return Math.max(minOutput, Math.min(maxOutput, output));
